@@ -1,28 +1,17 @@
 const express = require('express')
-const cors = require("cors");
+const corsConfigure = require("./middleware/cors")
 const routerApi = require('./routers');
 const jsonHandler = require("./middleware/json.handler")
 const {logError, errorHandler, boomErrorHandler} = require("./middleware/error.handler")
-
+const {cors} = require("./configuration/config");
 
 const app = express()
 const port = 3001;
 
+const freeAccess =  cors.freeAccess == "true";
+
 jsonHandler(app);
-
-const whiteList = ["http://localhost:3001","http://127.0.0.1:5500", "https://localhost:3001"];
-const options = {
-  origin : (origin, callback) => {
-    console.log(origin);
-    if(whiteList.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error("No permitido"));
-    }
-  }
-}
-
-app.use(cors(options));
+corsConfigure(app,freeAccess);
 
 app.use(logError);
 app.use(boomErrorHandler);
